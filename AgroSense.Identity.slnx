@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="Api/Api.csproj" Id="62707ae6-a22b-4247-b435-acc021e5a6f3" />
+    <Project Path="Application/Application.csproj" Id="a6b5ea08-1687-4ee0-9491-8e999b81c619" />
+    <Project Path="Domain/Domain.csproj" Id="fff90aca-c19b-4f14-a735-bb0427e681c9" />
+    <Project Path="Infrastructure/Infrastructure.csproj" Id="7699cd0a-668b-4ece-866d-69ec7a04ee22" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
