@@ -1,5 +1,6 @@
 ﻿using Api.Common;
 using Api.Common.Middlewares;
+using Api.Domain.Abstractions.UseCases;
 using Api.Domain.Entities.Enums;
 using Api.Features.Users.Login;
 using Api.Features.Users.Register;
@@ -26,7 +27,7 @@ public static class DependencyInjectionExtension
         return services;
     }
 
-    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration) 
+    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddControllers();
         services.AddProblemDetails();
@@ -93,8 +94,8 @@ public static class DependencyInjectionExtension
 
     private static IServiceCollection AddUseCases(this IServiceCollection services)
     {
-        services.AddScoped<ILoginUseCase, LoginUseCase>();
-        services.AddScoped<IRegisterUseCase, RegisterUseCase>();
+        services.AddScoped<IUseCase<LoginRequest, LoginResponse>, LoginUseCase>();
+        services.AddScoped<IUseCase<RegisterRequest>, RegisterUseCase>();
 
         return services;
     }

@@ -1,5 +1,5 @@
 services:
-  db:
+  agrosense-identity-db:
     container_name: agrosense-identity-db
     image: postgres:15.5-alpine
     environment:
@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: agrosense_identity
       PGDATA: /data/postgres
     volumes:
-      - db:/data/postgres
+      - agrosense-identity-db:/data/postgres
     ports:
       - "5332:5432"
     restart: unless-stopped
@@ -18,18 +18,21 @@ services:
       timeout: 10s
       retries: 5
 
-  api:
+  agrosense-identity-api:
     container_name: agrosense-identity-api
     image: ${DOCKER_REGISTRY-}api
     build:
       context: .
       dockerfile: Api/Dockerfile
+    ports:
+      - "5001:8080"
     environment:
-      ConnectionStrings__Default: Host=db;Port=5432;Database=agrosense_identity;Username=agrosense;Password=agrosense
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=agrosense-identity-db;Port=5432;Database=agrosense_identity;Username=agrosense;Password=agrosense
     depends_on:
-      db:
+      agrosense-identity-db:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  db:
+  agrosense-identity-db:

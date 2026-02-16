@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Api.Domain.Abstractions.UseCases;
 using Api.Infrastructure.Persistence.Contexts;
 using Api.Infrastructure.Providers.Jwt;
 using Api.Infrastructure.Providers.PasswordHasher;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Features.Users.Login;
 
-internal sealed class LoginUseCase(UserDbContext context, IJwtProvider jwtProvider, IPasswordHasherProvider passwordHasher) : ILoginUseCase
+internal sealed class LoginUseCase(UserDbContext context, IJwtProvider jwtProvider, IPasswordHasherProvider passwordHasher) : IUseCase<LoginRequest, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(LoginRequest request)
     {

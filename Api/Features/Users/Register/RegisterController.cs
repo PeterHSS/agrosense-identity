@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Api.Domain.Abstractions.UseCases;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Features.Users.Register;
@@ -9,7 +10,7 @@ public class RegisterController : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IResult> Register([FromBody] RegisterRequest request, [FromServices] IRegisterUseCase useCase)
+    public async Task<IResult> Register([FromBody] RegisterRequest request, [FromServices] IUseCase<RegisterRequest> useCase)
     {
         var result = await useCase.Handle(request);
 
