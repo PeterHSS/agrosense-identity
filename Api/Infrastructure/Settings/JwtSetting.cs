@@ -1,8 +1,8 @@
 ﻿namespace Api.Infrastructure.Settings;
 
-public sealed class JwtSettings
+public sealed class JwtSetting
 {
-    public const string SectionName = nameof(JwtSettings);
+    public const string SectionName = nameof(JwtSetting);
 
     public string Secret { get; set; } = string.Empty;
     public string Audience { get; set; } = string.Empty;

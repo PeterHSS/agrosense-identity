@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Features.Users.Login;
 
@@ -6,6 +7,8 @@ namespace Api.Features.Users.Login;
 [Route("api/users")]
 public class LoginController : ControllerBase
 {
+    [AllowAnonymous]
+    [HttpPost("login")]
     public async Task<IResult> Handle([FromServices] ILoginUseCase useCase, [FromBody] LoginRequest request)
     {
         var response = await useCase.Handle(request);

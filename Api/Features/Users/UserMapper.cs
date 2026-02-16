@@ -5,6 +5,6 @@ namespace Api.Features.Users;
 
 public static class UserMapper
 {
-    public static User ToEntity(this RegisterRequest request, string hashedPassword) 
-        => new User(request.Name, request.Email, hashedPassword);
+    public static User ToUser(this RegisterRequest request, string hashedPassword) 
+        => new(request.Name, request.Email, hashedPassword);
 }

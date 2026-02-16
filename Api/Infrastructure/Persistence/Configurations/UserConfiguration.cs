@@ -9,7 +9,12 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.HasKey(u => u.Id);
+        builder
+            .ToTable("Users");
+
+        builder
+            .HasKey(u => u.Id)
+            .HasName("PK_Users")    ;
 
         builder
             .Property(u => u.Name)
@@ -34,5 +39,9 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
                 v => Enum.Parse<Role>(v, true)
             )
             .HasMaxLength(10);
+
+        builder
+            .HasIndex(u => u.Email)
+            .IsUnique();
     }
 }

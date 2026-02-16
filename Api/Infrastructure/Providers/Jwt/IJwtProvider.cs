@@ -4,5 +4,5 @@ namespace Api.Infrastructure.Providers.Jwt;
 
 public interface IJwtProvider
 {
-    string Create(User user);
+    string CreateToken(User user);
 }

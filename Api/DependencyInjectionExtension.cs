@@ -1,30 +1,71 @@
-﻿using Api.Infrastructure.Persistence.Contexts;
+﻿using Api.Common;
+using Api.Common.Middlewares;
+using Api.Domain.Entities.Enums;
+using Api.Features.Users.Login;
+using Api.Features.Users.Register;
+using Api.Infrastructure.Persistence.Contexts;
 using Api.Infrastructure.Providers.Jwt;
 using Api.Infrastructure.Providers.PasswordHasher;
 using Api.Infrastructure.Settings;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Api;
 
 public static class DependencyInjectionExtension
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDependecyInjection(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddContext(configuration);
-        services.AddProviders();
-        services.AddSettings(configuration);
+        services.AddInfrastructure(configuration);
+        services.AddApplication();
+        services.AddPresentation(configuration);
+        return services;
+    }
+
+    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration) 
+    {
+        services.AddControllers();
+        services.AddProblemDetails();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddOpenApi();
+        services.AddJwtAuthenticationAndAuthorization(configuration);
 
         return services;
     }
 
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    private static IServiceCollection AddJwtAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddValidators();
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+
+                options.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(Policies.AdministratorOnly, policy => policy.RequireRole(nameof(Role.Admin)));
+        });
 
         return services;
     }
+
     public static void ApplyMigrations(this IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -32,6 +73,31 @@ public static class DependencyInjectionExtension
         using var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
         context.Database.Migrate();
+    }
+
+    private static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddContexts(configuration);
+        services.AddProviders();
+        services.AddSettings(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddValidators();
+        services.AddUseCases();
+
+        return services;
+    }
+
+    private static IServiceCollection AddUseCases(this IServiceCollection services)
+    {
+        services.AddScoped<ILoginUseCase, LoginUseCase>();
+        services.AddScoped<IRegisterUseCase, RegisterUseCase>();
+
+        return services;
     }
 
     private static IServiceCollection AddValidators(this IServiceCollection services)
@@ -49,9 +115,9 @@ public static class DependencyInjectionExtension
         return services;
     }
 
-    private static IServiceCollection AddContext(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddContexts(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+        var connectionString = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("ConnectionString not configured.");
 
         services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
 
@@ -60,9 +126,9 @@ public static class DependencyInjectionExtension
 
     private static IServiceCollection AddSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<JwtSetting>(configuration.GetSection(JwtSetting.SectionName));
 
-        services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<IOptions<JwtSettings>>().Value);
+        services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<IOptions<JwtSetting>>().Value);
 
         return services;
     }

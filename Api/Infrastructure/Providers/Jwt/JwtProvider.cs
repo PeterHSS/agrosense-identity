@@ -7,9 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Api.Infrastructure.Providers.Jwt;
 
-internal sealed class JwtProvider(JwtSettings jwtSetting) : IJwtProvider
+internal sealed class JwtProvider(JwtSetting jwtSetting) : IJwtProvider
 {
-    public string Create(User user)
+    public string CreateToken(User user)
     {
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSetting.Secret));
 

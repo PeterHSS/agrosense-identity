@@ -1,16 +1,25 @@
 ﻿using Api.Common;
+using Api.Infrastructure.Persistence.Contexts;
+using Api.Infrastructure.Providers.Jwt;
+using Api.Infrastructure.Providers.PasswordHasher;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Features.Users.Login;
 
-internal sealed class LoginUseCase : ILoginUseCase
+internal sealed class LoginUseCase(UserDbContext context, IJwtProvider jwtProvider, IPasswordHasherProvider passwordHasher) : ILoginUseCase
 {
-    public Task<LoginResponse> Handle(LoginRequest request)
+    public async Task<Result<LoginResponse>> Handle(LoginRequest request)
     {
-        throw new NotImplementedException();
-    }
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
 
-    Task<Result<LoginResponse>> ILoginUseCase.Handle(LoginRequest request)
-    {
-        throw new NotImplementedException();
+        if (user is null)
+            return Result<LoginResponse>.Failure(UserErrors.UserNotExists);
+
+        if (!passwordHasher.Verify(request.Password, user.Password))
+            return Result<LoginResponse>.Failure(UserErrors.InvalidCredentials);
+
+        var token = jwtProvider.CreateToken(user);
+
+        return Result<LoginResponse>.Success(new LoginResponse(token));
     }
 }
