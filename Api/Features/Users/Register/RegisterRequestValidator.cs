@@ -18,10 +18,6 @@ internal sealed class RegisterRequestValidator : AbstractValidator<RegisterReque
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("O nome é obrigatório.")
             .MaximumLength(100).WithMessage("O nome não pode exceder 100 caracteres.");
-
-        RuleFor(x => x.BirhDate)
-            .NotEmpty().WithMessage("A data de nascimento é obrigatória.")
-            .LessThan(DateTime.Now).WithMessage("A data de nascimento deve ser uma data passada."); 
     }
 
     private bool BeAValidPassword(string password)

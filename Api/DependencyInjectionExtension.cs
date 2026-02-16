@@ -58,10 +58,9 @@ public static class DependencyInjectionExtension
                 };
             });
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy(Policies.AdministratorOnly, policy => policy.RequireRole(nameof(Role.Admin)));
-        });
+        services
+            .AddAuthorizationBuilder()
+            .AddPolicy(Policies.AdministratorOnly, policy => policy.RequireRole(nameof(Role.Admin)));
 
         return services;
     }
