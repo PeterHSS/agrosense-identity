@@ -34,6 +34,7 @@ public static class DependencyInjectionExtension
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddOpenApi();
         services.AddJwtAuthenticationAndAuthorization(configuration);
+        services.AddHealthChecks();
 
         return services;
     }
