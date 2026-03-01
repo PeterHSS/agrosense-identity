@@ -19,7 +19,7 @@ spec:
         app: agrosense-api-identity
     spec:
       containers:
-      - name: agrosense-api- identity
+      - name: agrosense-api-identity
         image: klurgs/agrosense-identity:latest
         imagePullPolicy: Always
         ports:
