@@ -1,4 +1,5 @@
 using Api;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,5 +23,7 @@ app.UseAuthentication();
 app.UseExceptionHandler();
 
 app.MapControllers();
+
+app.UseHealthChecks("/health", new HealthCheckOptions { ResponseWriter = async (context, report) => { context.Response.ContentType = "text/plain"; await context.Response.WriteAsync("OK"); } });
 
 app.Run();
