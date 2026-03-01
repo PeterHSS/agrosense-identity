@@ -6,20 +6,20 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agrosense-identity-api
+  name: agrosense-api-identity
   namespace: agrosense  
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: agrosense-identity-api
+      app: agrosense-api-identity
   template:
     metadata:
       labels:
-        app: agrosense-identity-api
+        app: agrosense-api-identity
     spec:
       containers:
-      - name: agrosense-identity-api
+      - name: agrosense-api- identity
         image: klurgs/agrosense-identity:latest
         imagePullPolicy: Always
         ports:
@@ -43,12 +43,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: agrosense-identity-api
+  name: agrosense-api-identity
   namespace: agrosense
 spec:
   type: ClusterIP  # Internal apenas, acessível via Gateway
   selector:
-    app: agrosense-identity-api
+    app: agrosense-api-identity
   ports:
   - port: 80
     targetPort: 80
@@ -57,13 +57,13 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: agrosense-identity-api-hpa
+  name: agrosense-api-identity-hpa
   namespace: agrosense
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: agrosense-identity-api
+    name: agrosense-api-identity
   minReplicas: 1
   maxReplicas: 2
   metrics:
