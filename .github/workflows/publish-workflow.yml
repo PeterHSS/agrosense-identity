@@ -1,0 +1,57 @@
+name: Deploy Gateway to Local K8S
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+env:
+  DOCKERHUB_REPOSITORY: klurgs/agrosense-identity
+  K8S_NAMESPACE: agrosense
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build
+        run: dotnet build AgroSense.Identity.slnx --configuration Release
+
+      - name: Test
+        run: dotnet test AgroSense.Identity.slnx --configuration Release --no-build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }}
+          file: Api/Dockerfile
+
+      - name: Deploy to local Kubernetes
+        shell: powershell
+        run: |
+          kubectl create namespace agrosense --dry-run=client -o yaml | kubectl apply -f -
+      
+          kubectl apply -f Api/kubernetes.yaml
+      
+          kubectl set image deployment/agrosense-api-identity `
+            agrosense-api-identity=${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }} `
+            -n agrosense
+      
+          kubectl rollout status deployment/agrosense-api-identity -n agrosense
