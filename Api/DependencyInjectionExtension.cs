@@ -1,4 +1,5 @@
-﻿using Api.Common;
+﻿using System.Text;
+using Api.Common;
 using Api.Common.Middlewares;
 using Api.Domain.Abstractions.UseCases;
 using Api.Domain.Entities.Enums;
@@ -13,7 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Serilog;
 
 namespace Api;
 
@@ -38,7 +39,12 @@ public static class DependencyInjectionExtension
 
         return services;
     }
+    public static IHostBuilder AddSerilog(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
+        return hostBuilder;
+    }
     private static IServiceCollection AddJwtAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration configuration)
     {
         services
