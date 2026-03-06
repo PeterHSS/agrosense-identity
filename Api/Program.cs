@@ -46,15 +46,15 @@ if (app.Environment.IsDevelopment())
     app.Services.ApplyMigrations();
 }
 
-app.UseOpenTelemetryPrometheusScrapingEndpoint("/api/users/metrics");
+app.UseOpenTelemetryPrometheusScrapingEndpoint("/api/metrics/users");
 
 app.UseMiddleware<RequestLogContextMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.UseExceptionHandler();
 

@@ -39,12 +39,14 @@ public static class DependencyInjectionExtension
 
         return services;
     }
+
     public static IHostBuilder AddSerilog(this IHostBuilder hostBuilder)
     {
         hostBuilder.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
         return hostBuilder;
     }
+
     private static IServiceCollection AddJwtAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration configuration)
     {
         services
