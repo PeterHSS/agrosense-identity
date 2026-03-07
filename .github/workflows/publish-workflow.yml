@@ -1,4 +1,4 @@
-name: Deploy Gateway to Local K8S
+name: Publish Docker Image 
 
 on:
   workflow_dispatch:
@@ -7,11 +7,10 @@ on:
 
 env:
   DOCKERHUB_REPOSITORY: klurgs/agrosense-identity
-  K8S_NAMESPACE: agrosense
 
 jobs:
   build-and-deploy:
-    runs-on: [self-hosted, windows]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -40,18 +39,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }}
+          tags: |
+              ${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }}
+              ${{ env.DOCKERHUB_REPOSITORY }}:latest
           file: Api/Dockerfile
-
-      - name: Deploy to local Kubernetes
-        shell: powershell
-        run: |
-          kubectl create namespace agrosense --dry-run=client -o yaml | kubectl apply -f -
-      
-          kubectl apply -f Api/kubernetes.yaml
-      
-          kubectl set image deployment/agrosense-api-identity `
-            agrosense-api-identity=${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }} `
-            -n agrosense
-      
-          kubectl rollout status deployment/agrosense-api-identity -n agrosense
