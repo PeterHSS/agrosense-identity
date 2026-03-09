@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Features.Users.Register;
 
-internal sealed class RegisterUseCase(IValidator<RegisterRequest> validator, UserDbContext context, IPasswordHasherProvider passwordHasher) : IUseCase<RegisterRequest>
+public sealed class RegisterUseCase(IValidator<RegisterRequest> validator, UserDbContext context, IPasswordHasherProvider passwordHasher) : IUseCase<RegisterRequest>
 {
     public async Task<Result> Handle(RegisterRequest request)
     {

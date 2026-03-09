@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Api.Infrastructure.Providers.Jwt;
 
-internal sealed class JwtProvider(JwtSetting jwtSetting) : IJwtProvider
+public sealed class JwtProvider(JwtSetting jwtSetting) : IJwtProvider
 {
     public string CreateToken(User user)
     {
